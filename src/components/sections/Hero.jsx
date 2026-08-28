@@ -88,7 +88,7 @@ export default function Hero({ days, hours, mins, secs }) {
           position: "absolute",
           left: 0,
           right: 0,
-          bottom: "14vh",
+          bottom: "22vh",
           zIndex: 2,
           display: "flex",
           gap: 10,

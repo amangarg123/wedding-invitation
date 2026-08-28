@@ -1,4 +1,5 @@
 import { Heart, Volume2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ROSE } from "./styles/theme";
 import useCountdown from "./hooks/useCountdown";
@@ -11,9 +12,28 @@ import Venue from "./components/sections/Venue";
 import Footer from "./components/sections/Footer";
 import { WEDDING_DATE } from "./data/wedding";
 import COUPLE_PHOTO from "./assets/couplePhoto.png";
+import MusicPopup from "./components/MusicPopup/MusicPopup";
+import WEDDING_MUSIC from "./assets/wedding-song.mp3";
+import FloatingButtons from "./components/FloatingButtons";
 
 function App() {
   const { days, hours, mins, secs } = useCountdown(WEDDING_DATE);
+  const [showMusicPopup, setShowMusicPopup] = useState(true);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const audioRef = useRef(null);
+  const handlePlayMusic = async () => {
+    if (!audioRef.current) return;
+    try {
+      await audioRef.current.play();
+      setIsMusicPlaying(true);
+      setShowMusicPopup(false);
+    } catch (error) {
+      console.error("Unable to play wedding music:", error);
+    }
+  };
+  const handleSkipMusic = () => {
+    setShowMusicPopup(false);
+  };
 
   return (
     <div style={{ fontFamily: "'Poppins', 'Segoe UI', sans-serif", color: ROSE.text, minHeight: "100vh", position: "relative" }}>
@@ -42,25 +62,29 @@ function App() {
 
       <div style={{ position: "relative", zIndex: 1 }}>
 
-      {/* floating buttons, mimicking app-style corner controls */}
-      {/* <div style={{ position: "sticky", top: 0, zIndex: 5, display: "flex", justifyContent: "space-between", padding: "16px 20px", pointerEvents: "none" }}>
-        <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg, ${ROSE.gradientA}, ${ROSE.gradientB})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(217,79,112,0.3)", pointerEvents: "auto" }}>
-          <Heart size={18} color="#fff" fill="#fff" />
-        </div>
-        <div style={{ width: 40, height: 40, borderRadius: "50%", background: `linear-gradient(135deg, ${ROSE.gradientA}, ${ROSE.gradientB})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 12px rgba(217,79,112,0.3)", pointerEvents: "auto" }}>
-          <Volume2 size={18} color="#fff" />
-        </div>
-      </div> */}
+        {/* floating buttons, mimicking app-style corner controls */}
+        <FloatingButtons audioRef={audioRef} isMusicPlaying={isMusicPlaying} setIsMusicPlaying={setIsMusicPlaying}/>
 
-      <Hero days={days} hours={hours} mins={mins} secs={secs} />
-      <div style={{ backgroundColor: "#fff3", backdropFilter: "blur(12px)"}}>
-      <LoveStory />
-      <Families />
-      <Timeline />
-      {/* <RSVP /> */}
-      <Venue />
-      <Footer />
-      </div>
+        <audio
+          ref={audioRef}
+          src={WEDDING_MUSIC}
+          loop
+          preload="auto"
+        />
+        <MusicPopup
+          open={showMusicPopup}
+          onPlay={handlePlayMusic}
+          onSkip={handleSkipMusic}
+        />
+        <Hero days={days} hours={hours} mins={mins} secs={secs} />
+        <div style={{ backgroundColor: "#fff3", backdropFilter: "blur(12px)" }}>
+          <LoveStory />
+          <Families />
+          <Timeline />
+          {/* <RSVP /> */}
+          <Venue />
+          <Footer />
+        </div>
       </div>
     </div>
   );
